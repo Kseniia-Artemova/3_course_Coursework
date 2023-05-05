@@ -48,6 +48,9 @@ def test_set_operation_amount_incorrect_amount_3(pay):
     pay.set_operation_amount({'amount': '', 'currency': {'name': 'USD', 'code': 'USD'}})
     assert pay.get_operation_amount() == "Incorrect amount or currency!"
 
+def test_set_description(pay):
+    pay.set_description('Перевод с карты на карту')
+    assert pay.get_description() == 'Перевод с карты на карту'
 
 def test_set_operation_amount_incorrect_amount_4(pay):
     pay.set_operation_amount({'amount': '', 'currency': {}})

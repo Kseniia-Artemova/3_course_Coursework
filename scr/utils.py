@@ -60,6 +60,3 @@ def hide(number):
 
     elif len(number) == 20:
         return number.replace(number[:-4], "**")
-
-
-

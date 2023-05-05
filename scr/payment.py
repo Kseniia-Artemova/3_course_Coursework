@@ -188,7 +188,3 @@ class OperationAmount:
     def get_currency_name(self):
         return self.__currency_name
 
-
-
-
-
