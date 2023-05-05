@@ -1,6 +1,7 @@
 import json
 from itertools import islice
 import scr.payment as pay_
+from datetime import datetime
 
 
 def get_latest_payments(path, count, parameters):
@@ -14,11 +15,41 @@ def get_latest_payments(path, count, parameters):
 
 
 def latest_correct_payments(payments, parameters):
-    for pay in payments[::-1]:
+    payments = [pay for pay in payments if pay.get("date")]
+    for pay in sorted(payments, key=sort_by_date, reverse=True):
         if pay["state"].lower() == "executed":
             if parameters.issubset(set(pay.keys())):
                 yield pay
 
+
+def sort_by_date(pay):
+    date_pay = pay.get("date")
+    if date_pay:
+        date_pay = date_pay.replace("T", " ")
+
+        try:
+            date = datetime.fromisoformat(date_pay)
+        except ValueError:
+            date = datetime(1900, 1, 1)
+
+        return date
+
+
+# def check_date(date):
+#     date_time = date.split("T")
+#     if type(date) is not str:
+#         return False
+#     elif len(date_time) != 2:
+#         return False
+#     date = date_time[0]
+#     time = date_time[1]
+#     if date.split("-") != 3:
+#         return False
+#     elif [len(x) for x in date.split if x.isdigit()] != [4, 2, 2]:
+#         return False
+#     elif time.split(":") != 3:
+#         return False
+#     elif [len(x) for x in date.split if x.isdigit()] != [4, 2, 2]:
 
 def create_payment(pay_information: dict):
     payment = pay_.Payment()
@@ -43,10 +74,11 @@ def show_payment(pay):
     print(f"\033[31m{date.rsplit('.', 1)[0]}\033[0m.{date.rsplit('.', 1)[1]} "
           f"{description}")
     if pay_from:
-        print(f"{pay_from[0]} \033[34m{hide(pay_from[1])}\033[0m ", end=" ")
+        print(f"{pay_from[0]} \033[34m{hide(pay_from[1])}\033[0m", end=" ")
     print(f"-\033[33m> \033[0m{pay_to[0]} \033[34m{hide(pay_to[1])}")
     print(f"\033[31m{operation_amount[0]}\033[0m {operation_amount[1]}")
     print()
+
 
 def hide(number):
     if len(number) == 16:
