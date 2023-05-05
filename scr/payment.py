@@ -67,14 +67,32 @@ class Payment:
         return self.__date
 
     def set_operation_amount(self, operation_amount):
-        pass
         amount = operation_amount.get('amount')
         currency = operation_amount.get('currency')
         currency_name = currency.get('name') if currency else None
 
-        operation_amount_new = OperationAmount(amount, currency_name)
+        if amount and currency_name and type(currency_name) is str:
+            if self.__check_operation_amount(amount):
+                self.__operation_amount = (amount, currency_name)
+            else:
+                self.__operation_amount = "Incorrect amount!"
 
-        self.__operation_amount = operation_amount_new
+        else:
+            self.__operation_amount = "Incorrect amount or currency!"
+
+    @staticmethod
+    def __check_operation_amount(amount):
+        for_amount = str(amount).split(".")
+        if len(for_amount) != 2:
+            return False
+        elif len(for_amount[1]) != 2:
+            return False
+        elif not for_amount[0].isdigit() or not for_amount[1].isdigit():
+            return False
+        elif int(for_amount[0]) < 0 or int(for_amount[1]) < 0:
+            return False
+
+        return True
 
     def get_operation_amount(self):
         return self.__operation_amount
@@ -87,22 +105,23 @@ class Payment:
         return self.__description
 
     def set_pay_from(self, pay_from):
-        if pay_from and self.__check_pay_card(pay_from):
-            self.__from = pay_from
-        else:
-            self.__from = "Incorrect account or card number!"
+        if pay_from:
+            card_sep = pay_from.rsplit(" ", 1)
+            card, number = card_sep
+            if self.__check_pay_card(card, number):
+                self.__from = (card, number)
+            else:
+                self.__from = "Incorrect account or card number!"
 
     @staticmethod
-    def __check_pay_card(card):
+    def __check_pay_card(card, number):
         AMOUNT_DIGITS = [16, 20]
-        card_details = str(card).split()
-        card_number = card_details[-1]
-        account = card_details[0]
-        if not card_number.isdigit():
+
+        if not number.isdigit():
             return False
-        elif len(card_number) not in AMOUNT_DIGITS:
+        elif len(number) not in AMOUNT_DIGITS:
             return False
-        elif account.lower() == "счет" and len(card_number) != AMOUNT_DIGITS[-1]:
+        elif card.lower() == "счет" and len(number) != AMOUNT_DIGITS[-1]:
             return False
 
         return True
@@ -111,10 +130,13 @@ class Payment:
         return self.__from
 
     def set_pay_to(self, pay_to):
-        if pay_to and self.__check_pay_card(pay_to):
-            self.__to = pay_to
-        else:
-            self.__to = "Incorrect account or card number!"
+        if pay_to:
+            card_sep = pay_to.rsplit(" ", 1)
+            card, number = card_sep
+            if self.__check_pay_card(card, number):
+                self.__to = (card, number)
+            else:
+                self.__to = "Incorrect account or card number!"
 
     def get_pay_to(self):
         return self.__to

@@ -1,18 +1,17 @@
 import scr.utils as utils
 
 PATH_TO_PAYMENTS = "../sources/operations.json"
-NUMBER_SUCCESSFUL_TRANSFERS = 5
+COUNT_TRANSFERS = 5
+OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
 
 
 def main():
-    payments = utils.open_payments(PATH_TO_PAYMENTS, revert=True)
-    counter = 0
-    index = 0
+    payments = utils.get_latest_payments(PATH_TO_PAYMENTS, COUNT_TRANSFERS, OBLIGATION_PARAMETERS_PAY)
 
-    while counter != NUMBER_SUCCESSFUL_TRANSFERS:
-        if payments[index]["state"] == "EXECUTED":
-            payment = utils.create_payment(payments[index])
-            utils.show_payment(payment)
-            counter += 1
+    for pay_info in payments:
+        payment = utils.create_payment(pay_info)
+        utils.show_payment(payment)
 
-        index += 1
+
+if __name__ == "__main__":
+    main()
