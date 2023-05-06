@@ -1,6 +1,6 @@
 import json
 from itertools import islice
-import scr.payment as pay_
+import payment as pay_
 from datetime import datetime
 
 
