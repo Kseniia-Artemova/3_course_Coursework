@@ -128,6 +128,9 @@ def test_operation_amount_pay_incorrect(pay):
     pay.operation_amount_pay = {}
     assert pay.operation_amount_pay is None
 
+    pay.operation_amount_pay = None
+    assert pay.operation_amount_pay is None
+
     pay.operation_amount_pay = {
       "amount": "77751.04",
       "currency": {

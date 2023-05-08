@@ -1,5 +1,5 @@
 import json
-from payment import Payment
+from scr.payment import Payment
 from datetime import datetime
 from typing import Iterator
 import os
@@ -146,14 +146,15 @@ def hide(number: str) -> str:
     """
     card_digits = 16    # корректное число цифр номера карты
     bank_account_digits = 20    # корректное число цифр номера счёта
-    if len(number) == card_digits:
-        hide_start = 6  # символ, с которого начинается сокрытие участка номера
-        hide_end = 12   # символ, с которого участок номера снова открыт
-        hidden_simbols = hide_end - hide_start
-        number_hide = number[:hide_start] + "*" * hidden_simbols + number[hide_end:]
-        number_sep = [number_hide[i:i+4] for i in range(0, len(number), 4)]
+    if type(number) is str:
+        if len(number) == card_digits:
+            hide_start = 6  # символ, с которого начинается сокрытие участка номера
+            hide_end = 12   # символ, с которого участок номера снова открыт
+            hidden_simbols = hide_end - hide_start
+            number_hide = number[:hide_start] + "*" * hidden_simbols + number[hide_end:]
+            number_sep = [number_hide[i:i+4] for i in range(0, len(number), 4)]
 
-        return " ".join(number_sep)
+            return " ".join(number_sep)
 
-    elif len(number) == bank_account_digits:
-        return number.replace(number[:-4], "**")
+        elif len(number) == bank_account_digits:
+            return number.replace(number[:-4], "**")
