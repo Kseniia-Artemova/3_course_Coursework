@@ -1,190 +1,182 @@
+from datetime import datetime
+
+
 class Payment:
+    """Информация о платеже"""
 
-    def __init__(self):
-        self.__id = None
-        self.__state = None
-        self.__date = None
-        self.__operation_amount = None
-        self.__description = None
-        self.__from = None
-        self.__to = None
+    AMOUNT_DIGITS = [16, 20]    # корректное количество цифр в номере банковской карты и счёта
 
-    def __str__(self):
-        return f"Payment {self.__id}, more detailed information is closed."
+    def __init__(self) -> None:
+        self.__id_pay = None
+        self.__state_pay = None
+        self.__date_pay = None
+        self.__operation_amount_pay = None
+        self.__description_pay = None
+        self.__from_pay = None
+        self.__to_pay = None
 
-    def __repr__(self):
+    def __str__(self) -> str:
+        return f"Payment {self.__id_pay}, more detailed information is closed."
+
+    def __repr__(self) -> str:
         return f"Payment(" \
-                       f"id={self.__id}," \
-                       f"state=\"{self.__state}\"," \
-                       f"date=\"{self.__date}\"," \
-                       f"operation_amount={self.__operation_amount}," \
-                       f"description=\"{self.__description}\"," \
-                       f"from=\"{self.__from}\"," \
-                       f"to=\"{self.__to}\")"
+            f"id_pay={self.__id_pay}," \
+            f"state_pay=\"{self.__state_pay}\"," \
+            f"date_pay=\"{self.__date_pay}\"," \
+            f"operation_amount_pay={self.__operation_amount_pay}," \
+            f"description_pay=\"{self.__description_pay}\"," \
+            f"from_pay=\"{self.__from_pay}\"," \
+            f"to_pay=\"{self.__to_pay}\")"
 
-    def set_id(self, id_operation):
-        if type(id_operation) is int:
-            self.__id = id_operation
+    @property
+    def id_pay(self) -> int:
+        return self.__id_pay
 
-    def get_id(self):
-        return self.__id
+    @id_pay.setter
+    def id_pay(self, id_pay: int) -> None:
+        """
+        Устанавливает id платежа.
 
-    def set_state(self, state_operation):
-        if state_operation.lower() == "executed":
-            self.__state = state_operation.upper()
+        Проверка: является ли целым числом
+        """
+        if type(id_pay) is int:
+            self.__id_pay = id_pay
 
-    def get_state(self):
-        return self.__state
+    @property
+    def state_pay(self) -> str:
+        return self.__state_pay
 
-    def set_date(self, date):
-        for_date = str(date).split("T")[0].split("-")[::-1]
-        if self.__check_date(for_date):
-            self.__date = ".".join(for_date)
-        else:
-            self.__date = "Invalid date format!"
+    @state_pay.setter
+    def state_pay(self, state_pay: str) -> None:
+        """
+        Устанавливает состояние платежа.
 
-    @staticmethod
-    def __check_date(date):
-        days_in_months = {
-            "01": 31, "02": 29, "03": 31, "04": 30, "05": 31, "06": 30,
-            "07": 31, "08": 31, "09": 30, "10": 31, "11": 30, "12": 31
-        }
+        Проверка: соответствует ли состояние платежа
+        одному из двух возможных вариантов
+        """
+        if state_pay.lower() in ("executed", "canceled"):
+            self.__state_pay = state_pay.upper()
 
-        if len(date) != 3:
-            return False
-        elif not date[0].isdigit() or len(date[0]) != 2:
-            return False
-        elif date[1] not in days_in_months:
-            return False
-        elif int(date[0]) not in range(1, days_in_months.get(date[1]) + 1):
-            return False
-        elif len(date[2]) != 4 or not date[2].isdigit():
-            return False
+    @property
+    def date_pay(self) -> datetime:
+        return self.__date_pay
 
-        return True
+    @date_pay.setter
+    def date_pay(self, date: str) -> None:
+        """
+        Устанавливает дату платежа в формате datatime.
 
-    def get_date(self):
-        return self.__date
+        Проверка: является ли дата корректной
+        """
+        if type(date) is str:
+            for_date = " ".join(date.split("T"))
 
-    def set_operation_amount(self, operation_amount):
+            try:
+                self.__date_pay = datetime.fromisoformat(for_date)
+            except ValueError:
+                self.__date_pay = None
+
+    @property
+    def operation_amount_pay(self) -> tuple:
+        return self.__operation_amount_pay
+
+    @operation_amount_pay.setter
+    def operation_amount_pay(self, operation_amount: dict) -> None:
+        """
+        Устанавливает сумму и валюту платежа в формате кортежа.
+
+        Проверки:
+        существуют ли значения суммы и валюты платежа;
+        является ли формат валюты платежа строкой;
+        корректна ли сумма платежа
+        """
         amount = operation_amount.get('amount')
         currency = operation_amount.get('currency')
         currency_name = currency.get('name') if currency else None
 
-        if amount and currency_name and type(currency_name) is str:
-            if self.__check_operation_amount(amount):
-                self.__operation_amount = (amount, currency_name)
-            else:
-                self.__operation_amount = "Incorrect amount!"
-
-        else:
-            self.__operation_amount = "Incorrect amount or currency!"
+        if amount and currency_name:
+            if self.__check_amount(amount) and type(currency_name) is str:
+                self.__operation_amount_pay = (amount, currency_name)
 
     @staticmethod
-    def __check_operation_amount(amount):
-        for_amount = str(amount).split(".")
-        if len(for_amount) != 2:
-            return False
-        elif len(for_amount[1]) != 2:
-            return False
-        elif not for_amount[0].isdigit() or not for_amount[1].isdigit():
-            return False
-        elif int(for_amount[0]) < 0 or int(for_amount[1]) < 0:
+    def __check_amount(amount: str) -> bool:
+        """
+        Проверяет корректность суммы платежа через попытку
+        приведения формата к типу float
+        """
+        try:
+            float(amount)
+        except ValueError:
             return False
 
         return True
 
-    def get_operation_amount(self):
-        return self.__operation_amount
+    @property
+    def description_pay(self) -> str:
+        return self.__description_pay
 
-    def set_description(self, description):
-        if description and type(description) is str:
-            self.__description = description
+    @description_pay.setter
+    def description_pay(self, description_pay: str) -> None:
+        """
+        Устанавливает назначение/описание платежа.
 
-    def get_description(self):
-        return self.__description
+        Проверка: является ли описание платежа строкой
+        """
+        if type(description_pay) is str:
+            self.__description_pay = description_pay
 
-    def set_pay_from(self, pay_from):
-        if pay_from:
-            card_sep = pay_from.rsplit(" ", 1)
+    @property
+    def from_pay(self) -> tuple:
+        return self.__from_pay
+
+    @from_pay.setter
+    def from_pay(self, from_pay: str) -> None:
+        """
+        Устанавливает либо тип банковской карты и её номер,
+        либо банковский счёт и его номер в формате кортежа,
+        поле отправителя.
+
+        Проверки:
+        является ли эта информация строкой;
+        корректен ли номер карты/счёта
+        """
+        if type(from_pay) is str:
+            card_sep = from_pay.rsplit(" ", 1)
             card, number = card_sep
-            if self.__check_pay_card(card, number):
-                self.__from = (card, number)
-            else:
-                self.__from = "Incorrect account or card number!"
+            if self.__check_card(card, number):
+                self.__from_pay = (card, number)
 
-    @staticmethod
-    def __check_pay_card(card, number):
-        AMOUNT_DIGITS = [16, 20]
-
+    def __check_card(self, card: str, number: str) -> bool:
+        """
+        Проверяет, состоит ли номер карты/счёта только из цифр и
+        соответствует ли количество цифр в номере обязательному для карты/счёта
+        """
         if not number.isdigit():
             return False
-        elif len(number) not in AMOUNT_DIGITS:
+        elif len(number) not in self.AMOUNT_DIGITS:
             return False
-        elif card.lower() == "счет" and len(number) != AMOUNT_DIGITS[-1]:
+        elif card.lower() == "счет" and len(number) != self.AMOUNT_DIGITS[-1]:
             return False
 
         return True
 
-    def get_pay_from(self):
-        return self.__from
+    @property
+    def to_pay(self) -> tuple:
+        return self.__to_pay
 
-    def set_pay_to(self, pay_to):
-        if pay_to:
-            card_sep = pay_to.rsplit(" ", 1)
+    @to_pay.setter
+    def to_pay(self, to_pay: str) -> None:
+        """
+        Устанавливает либо тип банковской карты и её номер,
+        либо банковский счёт и его номер в формате кортежа,
+        поле получателя.
+
+        Проверки:
+        является ли эта информация строкой;
+        корректен ли номер карты/счёта
+        """
+        if type(to_pay) is str:
+            card_sep = to_pay.rsplit(" ", 1)
             card, number = card_sep
-            if self.__check_pay_card(card, number):
-                self.__to = (card, number)
-            else:
-                self.__to = "Incorrect account or card number!"
-
-    def get_pay_to(self):
-        return self.__to
-
-
-class OperationAmount:
-
-    def __init__(self, amount, currency):
-        self.__amount = None
-        self.set_amount(amount)
-        self.__currency_name = None
-        self.set_currency_name(currency)
-
-    def __str__(self):
-        return f"Pay {self.__amount} {self.__currency_name}"
-
-    def __repr__(self):
-        return f"OperationAmount(" \
-               f"amount=\"{self.__amount}, " \
-               f"currency_name=\"{self.__currency_name}\")"
-
-    def set_amount(self, amount):
-        if amount and self.__check_amount(amount):
-            self.__amount = amount
-        else:
-            self.__amount = "Incorrect amount!"
-
-    @staticmethod
-    def __check_amount(amount):
-        for_amount = str(amount).split(".")
-        if len(for_amount) != 2:
-            return False
-        elif len(for_amount[1]) != 2:
-            return False
-        elif not for_amount[0].isdigit() or not for_amount[1].isdigit():
-            return False
-        elif int(for_amount[0]) < 0 or int(for_amount[1]) < 0:
-            return False
-
-        return True
-
-    def get_amount(self):
-        return self.__amount
-
-    def set_currency_name(self, name):
-        if name and type(name) is str:
-            self.__currency_name = name
-
-    def get_currency_name(self):
-        return self.__currency_name
-
+            if self.__check_card(card, number):
+                self.__to_pay = (card, number)
