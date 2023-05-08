@@ -1,94 +1,143 @@
 import json
-from itertools import islice
-import payment as pay_
+from payment import Payment
 from datetime import datetime
+from typing import Iterator
 
 
-def get_latest_payments(path, count, parameters):
+def get_payments(path: str, parameters: set) -> Iterator[dict]:
+    """
+    Функция фильтрует и сортирует по дате в обратном порядке
+    релевантные для нас значения из списка словарей с информацией
+    о платежах.
+
+    :param path: путь к JSON-файлу, содержащему список словарей
+    :param parameters: обязательные характеристики платежа
+
+    :return: итератор на основе отсортированного списка словарей платежа
+    """
     with open(path, "rt", encoding="utf-8") as json_file:
         payments = json.load(json_file)
 
-    latest_payments_gen = latest_correct_payments(payments, parameters)
-    successful_payments = islice(latest_payments_gen, count)
+    successful_payments = [pay for pay in payments if check_payment(pay, parameters)]
+    successful_payments.sort(reverse=True, key=sort_by_date)
 
-    return successful_payments
+    latest_payments = iter(successful_payments)
 
-
-def latest_correct_payments(payments, parameters):
-    payments = [pay for pay in payments if pay.get("date")]
-    for pay in sorted(payments, key=sort_by_date, reverse=True):
-        if pay["state"].lower() == "executed":
-            if parameters.issubset(set(pay.keys())):
-                yield pay
+    return latest_payments
 
 
-def sort_by_date(pay):
-    date_pay = pay.get("date")
-    if date_pay:
-        date_pay = date_pay.replace("T", " ")
+def check_payment(pay: dict, parameters: set) -> bool:
+    """
+    Функция проверяет, соответствует ли платёж требованиям.
 
-        try:
-            date = datetime.fromisoformat(date_pay)
-        except ValueError:
-            date = datetime(1900, 1, 1)
+    Проверки:
+    был ли платёж успешным ("state": "executed");
+    содержит ли информация о платеже все необходимые характеристики;
+    является ли дата платежа корректной
 
-        return date
+    :param pay: словарь, содержащий информацию о платеже
+    :param parameters: обязательные характеристики платежа
+    """
+    state = pay.get("state")
+    if not state:
+        return False
+    if state.lower() != "executed":
+        return False
+    elif not parameters.issubset(set(pay.keys())):
+        return False
+    elif not all(pay.values()):
+        return False
+    elif not check_date(pay.get("date")):
+        return False
+
+    return True
 
 
-# def check_date(date):
-#     date_time = date.split("T")
-#     if type(date) is not str:
-#         return False
-#     elif len(date_time) != 2:
-#         return False
-#     date = date_time[0]
-#     time = date_time[1]
-#     if date.split("-") != 3:
-#         return False
-#     elif [len(x) for x in date.split if x.isdigit()] != [4, 2, 2]:
-#         return False
-#     elif time.split(":") != 3:
-#         return False
-#     elif [len(x) for x in date.split if x.isdigit()] != [4, 2, 2]:
+def check_date(date: str) -> bool:
+    """
+    Проверяет корректность формата даты и
+    её соответствие принятой форме записи
+    """
+    if type(date) is not str:
+        return False
+    if len(date.split("T")) != 2:
+        return False
 
-def create_payment(pay_information: dict):
-    payment = pay_.Payment()
-    payment.set_id(pay_information.get("id"))
-    payment.set_state(pay_information.get("state"))
-    payment.set_date(pay_information.get("date"))
-    payment.set_operation_amount(pay_information.get("operationAmount"))
-    payment.set_description(pay_information.get("description"))
-    payment.set_pay_from(pay_information.get("from"))
-    payment.set_pay_to(pay_information.get("to"))
+    try:
+        datetime.fromisoformat(date.replace("T", " "))
+    except ValueError:
+        return False
+
+    return True
+
+
+def sort_by_date(pay: dict) -> datetime:
+    """
+    Функция для корректной сортировки значений по дате.
+    Приводит строку к формату datetime, если строка соответствует
+    принятому формату записи
+
+    Обязательно должна идти после фильтрации значений
+    на соответствие требуемому формату
+    """
+    date_pay = pay.get("date").replace("T", " ")
+    date = datetime.fromisoformat(date_pay)
+
+    return date
+
+
+def create_payment(pay: dict) -> Payment:
+    """
+    Создает и возвращает объект класса Payment, установив атрибуты
+    в соответствии с подходящими ключами передаваемого словаря.
+    """
+    payment = Payment()
+    payment.id_pay = pay.get("id")
+    payment.state_pay = pay.get("state")
+    payment.date_pay = pay.get("date")
+    payment.operation_amount_pay = pay.get("operationAmount")
+    payment.description_pay = pay.get("description")
+    payment.from_pay = pay.get("from")
+    payment.to_pay = pay.get("to")
 
     return payment
 
 
-def show_payment(pay):
-    date = pay.get_date()
-    description = pay.get_description()
-    pay_from = pay.get_pay_from()
-    pay_to = pay.get_pay_to()
-    operation_amount = pay.get_operation_amount()
+def show_payment(pay: Payment) -> None:
+    """
+    Выводит информацию о платеже на экран в требуемом виде
+    """
+    date = pay.date_pay
+    date_format = date.strftime("%d.%m.%Y")
+    description = pay.description_pay
+    pay_from = pay.from_pay
+    pay_to = pay.to_pay
+    operation_amount = pay.operation_amount_pay
+    red_date, white_date = date_format.rsplit('.', 1)
 
-    print(f"\033[31m{date.rsplit('.', 1)[0]}\033[0m.{date.rsplit('.', 1)[1]} "
-          f"{description}")
+    print(f"\033[31m{red_date}\033[0m.{white_date} {description}")
     if pay_from:
-        print(f"{pay_from[0]} \033[34m{hide(pay_from[1])}\033[0m", end=" ")
-    print(f"-\033[33m> \033[0m{pay_to[0]} \033[34m{hide(pay_to[1])}")
+        print(f"{pay_from[0]} \033[34m{hide(pay_from[1])} "
+              f"\033[0m-\033[33m>\033[0m", end=" ")
+    print(f"{pay_to[0]} \033[34m{hide(pay_to[1])}")
     print(f"\033[31m{operation_amount[0]}\033[0m {operation_amount[1]}")
     print()
 
 
-def hide(number):
-    if len(number) == 16:
-        hide_start = 6
-        hide_end = 12
+def hide(number: str) -> str:
+    """
+    Скрывает определённую часть номера карты или счёта символом "*"
+    """
+    card_digits = 16    # корректное число цифр номера карты
+    bank_account_digits = 20    # корректное число цифр номера счёта
+    if len(number) == card_digits:
+        hide_start = 6  # символ, с которого начинается сокрытие участка номера
+        hide_end = 12   # символ, с которого участок номера снова открыт
         hidden_simbols = hide_end - hide_start
         number_hide = number[:hide_start] + "*" * hidden_simbols + number[hide_end:]
-        number_sep = [number_hide[i:i+4]for i in range(0, len(number), 4)]
+        number_sep = [number_hide[i:i+4] for i in range(0, len(number), 4)]
 
         return " ".join(number_sep)
 
-    elif len(number) == 20:
+    elif len(number) == bank_account_digits:
         return number.replace(number[:-4], "**")

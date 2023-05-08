@@ -5,12 +5,32 @@ COUNT_TRANSFERS = 5
 OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
 
 
-def main():
-    payments = utils.get_latest_payments(PATH_TO_PAYMENTS, COUNT_TRANSFERS, OBLIGATION_PARAMETERS_PAY)
+def main() -> None:
+    # Получаем итератор на основе списка словарей из JSON-файла
+    # с информацией о платежах пользователя, словари отсортированы
+    # по дате в обратном порядке
+    payments = utils.get_payments(PATH_TO_PAYMENTS, OBLIGATION_PARAMETERS_PAY)
 
-    for pay_info in payments:
-        payment = utils.create_payment(pay_info)
-        utils.show_payment(payment)
+    counter = 0
+
+    # Создаём объекты класса Payment и выводим на экран информацию либо
+    # по заданному количеству успешных и корректных платежей,
+    # либо пока в списке не закончатся платежи
+    while counter < COUNT_TRANSFERS:
+        latest_payment = next(payments)
+        if latest_payment:
+            payment = utils.create_payment(latest_payment)
+            if all((payment.id_pay,
+                   payment.state_pay,
+                   payment.date_pay,
+                   payment.operation_amount_pay,
+                   payment.description_pay,
+                   payment.to_pay)):
+
+                utils.show_payment(payment)
+                counter += 1
+        else:
+            break
 
 
 if __name__ == "__main__":
