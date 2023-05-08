@@ -1,14 +1,12 @@
 [tool.poetry]
-name = "3-course-coursework"
+name = "3coursework"
 version = "0.1.0"
 description = ""
 authors = ["Ksu <kseniyaartemova@yandex.ru>"]
 readme = "README.md"
-packages = [{include = "3_course_coursework"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
@@ -17,6 +15,3 @@ pytest-cov = "^4.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-start = "scr.main:main"

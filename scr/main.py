@@ -1,16 +1,19 @@
-import scr.utils as utils
-import os
+import utils
 
-PATH_TO_PAYMENTS = os.path.abspath("../sources/operations.json")
+PATH = "sources/operations.json"    # путь к файлу с операциями от корневой папки проекта
 COUNT_TRANSFERS = 5
 OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
 
 
 def main() -> None:
+    # Получаем полный путь к файлу с операциями, откуда бы не был запущен скрипт
+    *dirs, name_file = PATH.split("/")
+    path_to_file = utils.get_path_to_file(name_file, *dirs)
+
     # Получаем итератор на основе списка словарей из JSON-файла
     # с информацией о платежах пользователя, словари отсортированы
     # по дате в обратном порядке
-    payments = utils.get_payments(PATH_TO_PAYMENTS, OBLIGATION_PARAMETERS_PAY)
+    payments = utils.get_payments(path_to_file, OBLIGATION_PARAMETERS_PAY)
 
     counter = 0
 
