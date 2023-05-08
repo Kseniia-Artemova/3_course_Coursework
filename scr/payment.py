@@ -54,8 +54,9 @@ class Payment:
         Проверка: соответствует ли состояние платежа
         одному из двух возможных вариантов
         """
-        if state_pay.lower() in ("executed", "canceled"):
-            self.__state_pay = state_pay.upper()
+        if type(state_pay) is str:
+            if state_pay.lower() in ("executed", "canceled"):
+                self.__state_pay = state_pay.upper()
 
     @property
     def date_pay(self) -> datetime:
@@ -96,7 +97,8 @@ class Payment:
 
         if amount and currency_name:
             if self.__check_amount(amount) and type(currency_name) is str:
-                self.__operation_amount_pay = (amount, currency_name)
+                amount_format_float = f"{float(amount):.2f}"
+                self.__operation_amount_pay = (amount_format_float, currency_name)
 
     @staticmethod
     def __check_amount(amount: str) -> bool:
@@ -104,6 +106,8 @@ class Payment:
         Проверяет корректность суммы платежа через попытку
         приведения формата к типу float
         """
+        if type(amount) is bool:
+            return False
         try:
             float(amount)
         except ValueError:
@@ -142,9 +146,10 @@ class Payment:
         """
         if type(from_pay) is str:
             card_sep = from_pay.rsplit(" ", 1)
-            card, number = card_sep
-            if self.__check_card(card, number):
-                self.__from_pay = (card, number)
+            if len(card_sep) == 2:
+                card, number = card_sep
+                if self.__check_card(card, number):
+                    self.__from_pay = (card, number)
 
     def __check_card(self, card: str, number: str) -> bool:
         """
@@ -177,6 +182,7 @@ class Payment:
         """
         if type(to_pay) is str:
             card_sep = to_pay.rsplit(" ", 1)
-            card, number = card_sep
-            if self.__check_card(card, number):
-                self.__to_pay = (card, number)
+            if len(card_sep) == 2:
+                card, number = card_sep
+                if self.__check_card(card, number):
+                    self.__to_pay = (card, number)

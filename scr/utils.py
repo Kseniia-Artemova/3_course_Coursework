@@ -2,6 +2,22 @@ import json
 from payment import Payment
 from datetime import datetime
 from typing import Iterator
+import os
+
+
+def get_path_to_file(name_file: str, *dirs: str) -> str:
+    """
+    Возвращает абсолютный путь к файлу с платёжными операциями,
+    вне зависимости от места запуска скрипта.
+
+    :param name_file: название файла с операциями
+    :param dirs: папка или папки, в которых расположен файл с операциями,
+    если смотреть путь от корневой папки проекта
+    """
+    path_current_file = os.path.abspath(__file__)
+    root_dir_path = os.path.dirname(os.path.dirname(path_current_file))
+    path_to_file = os.path.join(root_dir_path, *dirs, name_file)
+    return path_to_file
 
 
 def get_payments(path: str, parameters: set) -> Iterator[dict]:
