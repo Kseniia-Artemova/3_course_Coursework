@@ -19,4 +19,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start-program = "3_course_Coursework.scr.main:main"
+start_program = "3_course_coursework.scr.main:main"

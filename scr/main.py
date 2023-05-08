@@ -1,4 +1,4 @@
-import utils
+import scr.utils as utils
 
 PATH_TO_PAYMENTS = "../sources/operations.json"
 COUNT_TRANSFERS = 5
