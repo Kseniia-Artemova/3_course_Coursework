@@ -1,6 +1,7 @@
 import scr.utils as utils
+import os
 
-PATH_TO_PAYMENTS = "../sources/operations.json"
+PATH_TO_PAYMENTS = os.path.abspath("../sources/operations.json")
 COUNT_TRANSFERS = 5
 OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
 
