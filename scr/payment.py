@@ -91,14 +91,15 @@ class Payment:
         является ли формат валюты платежа строкой;
         корректна ли сумма платежа
         """
-        amount = operation_amount.get('amount')
-        currency = operation_amount.get('currency')
-        currency_name = currency.get('name') if currency else None
+        if type(operation_amount) is dict:
+            amount = operation_amount.get('amount')
+            currency = operation_amount.get('currency')
+            currency_name = currency.get('name') if currency else None
 
-        if amount and currency_name:
-            if self.__check_amount(amount) and type(currency_name) is str:
-                amount_format_float = f"{float(amount):.2f}"
-                self.__operation_amount_pay = (amount_format_float, currency_name)
+            if amount and currency_name:
+                if self.__check_amount(amount) and type(currency_name) is str:
+                    amount_format_float = f"{float(amount):.2f}"
+                    self.__operation_amount_pay = (amount_format_float, currency_name)
 
     @staticmethod
     def __check_amount(amount: str) -> bool:
