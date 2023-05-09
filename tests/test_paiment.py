@@ -1,5 +1,5 @@
 import pytest
-from scr.payment import Payment
+from class_payment.payment import Payment
 from datetime import datetime
 
 
