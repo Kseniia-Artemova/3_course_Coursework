@@ -78,6 +78,7 @@ def test_get_path_to_file_correct():
     assert u.get_path_to_file("operations.json", "sources") == "/home/ksu/PycharmProjects/3_course_Coursework/sources" \
                                                                "/operations.json"
 
+
 def test_get_path_to_file_incorrect():
     with pytest.raises(TypeError):
         u.get_path_to_file(2, 4)
@@ -110,7 +111,7 @@ def test_get_payments_incorrect(parameters):
     with pytest.raises(FileNotFoundError):
         u.get_payments(path, parameters)
 
-    path = "./sources/operations.json"
+    path = "ksu/sources/operations.json"
     with pytest.raises(FileNotFoundError):
         u.get_payments(path, parameters)
 
