@@ -1,5 +1,5 @@
 import json
-from scr.payment import Payment
+from payment import Payment
 from datetime import datetime
 from typing import Iterator
 import os
