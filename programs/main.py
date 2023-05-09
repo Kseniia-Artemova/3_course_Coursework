@@ -1,6 +1,11 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import scr.utils as utils
 
-PATH = "sources/operations.json"    # путь к файлу с операциями от корневой папки проекта
+PATH = "sources/operations.json"  # путь к файлу с операциями от корневой папки проекта
 COUNT_TRANSFERS = 5
 OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
 
@@ -21,16 +26,15 @@ def main() -> None:
     # по заданному количеству успешных и корректных платежей,
     # либо пока в списке не закончатся платежи
     while counter < COUNT_TRANSFERS:
-        latest_payment = next(payments)
+        latest_payment = next(payments, None)
         if latest_payment:
             payment = utils.create_payment(latest_payment)
             if all((payment.id_pay,
-                   payment.state_pay,
-                   payment.date_pay,
-                   payment.operation_amount_pay,
-                   payment.description_pay,
-                   payment.to_pay)):
-
+                    payment.state_pay,
+                    payment.date_pay,
+                    payment.operation_amount_pay,
+                    payment.description_pay,
+                    payment.to_pay)):
                 utils.show_payment(payment)
                 counter += 1
         else:

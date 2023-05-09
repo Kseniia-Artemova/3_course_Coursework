@@ -1,7 +1,7 @@
 import scr.utils as u
 import pytest
 from datetime import datetime
-from scr.payment import Payment
+from class_payment.payment import Payment
 
 
 @pytest.fixture

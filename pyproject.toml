@@ -16,3 +16,6 @@ pytest-cov = "^4.0.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+show-pays = "programs.main:main"
+
