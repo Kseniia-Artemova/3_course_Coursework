@@ -75,12 +75,19 @@ def data_list():
 
 
 def test_get_path_to_file_correct():
-    assert u.get_path_to_file("operations.json", "sources") == "/home/ksu/PycharmProjects/3coursework/sources" \
+    assert u.get_path_to_file("operations.json", "sources") == "/home/ksu/PycharmProjects/3_course_Coursework/sources" \
                                                                "/operations.json"
+
+def test_get_path_to_file_incorrect():
+    with pytest.raises(TypeError):
+        u.get_path_to_file(2, 4)
+
+    with pytest.raises(TypeError):
+        u.get_path_to_file(True, None)
 
 
 def test_get_payments_correct(parameters):
-    path = "/home/ksu/PycharmProjects/3coursework/sources/operations.json"
+    path = "/home/ksu/PycharmProjects/3_course_Coursework/sources/operations.json"
     payments = u.get_payments(path, parameters)
     assert next(payments) == {
         "id": 863064926,
@@ -96,6 +103,16 @@ def test_get_payments_correct(parameters):
         "description": "Открытие вклада",
         "to": "Счет 90424923579946435907"
     }
+
+
+def test_get_payments_incorrect(parameters):
+    path = "/home/ksu/PycharmProjects/3_course_Coursework/operations.json"
+    with pytest.raises(FileNotFoundError):
+        u.get_payments(path, parameters)
+
+    path = "./sources/operations.json"
+    with pytest.raises(FileNotFoundError):
+        u.get_payments(path, parameters)
 
 
 def test_check_payment_correct(correct_dict, parameters):
@@ -201,11 +218,11 @@ def test_check_date_incorrect():
     assert u.check_date(2013) is False
 
 
-def test_sort_by_date_correct(correct_dict):
-    assert u.sort_by_date(correct_dict) == datetime(2019, 12, 8, 22, 46, 21, 935582)
+def test_reformat_date_correct(correct_dict):
+    assert u.reformat_date(correct_dict) == datetime(2019, 12, 8, 22, 46, 21, 935582)
 
 
-def test_sort_by_date_incorrect():
+def test_reformat_date_incorrect():
     incorrect_dict = {
         "id": 863064926,
         "state": "EXECUTED",
@@ -221,7 +238,7 @@ def test_sort_by_date_incorrect():
         "to": "Счет 90424923579946435907"
     }
     with pytest.raises(ValueError):
-        u.sort_by_date(incorrect_dict)
+        u.reformat_date(incorrect_dict)
 
     incorrect_dict = {
         "id": 863064926,
@@ -238,7 +255,7 @@ def test_sort_by_date_incorrect():
         "to": "Счет 90424923579946435907"
     }
     with pytest.raises(ValueError):
-        u.sort_by_date(incorrect_dict)
+        u.reformat_date(incorrect_dict)
 
     incorrect_dict = {
         "id": 863064926,
@@ -255,7 +272,7 @@ def test_sort_by_date_incorrect():
         "to": "Счет 90424923579946435907"
     }
     with pytest.raises(ValueError):
-        u.sort_by_date(incorrect_dict)
+        u.reformat_date(incorrect_dict)
 
     incorrect_dict = {
         "id": 863064926,
@@ -272,7 +289,7 @@ def test_sort_by_date_incorrect():
         "to": "Счет 90424923579946435907"
     }
     with pytest.raises(AttributeError):
-        u.sort_by_date(incorrect_dict)
+        u.reformat_date(incorrect_dict)
 
 
 def test_create_payment_correct(correct_dict):
@@ -294,30 +311,6 @@ def test_create_payment_empty():
 def test_create_payment_none():
     with pytest.raises(AttributeError):
         u.create_payment(None)
-
-
-def test_create_payment_lack_date():
-    incorrect_dict = {
-        "id": 863064926,
-        "state": "EXECUTED",
-        "operationAmount": {
-            "amount": "41096.24",
-            "currency": {
-                "name": "USD",
-                "code": "USD"
-            }
-        },
-        "description": "Открытие вклада",
-        "to": "Счет 90424923579946435907"
-    }
-    pay = u.create_payment(incorrect_dict)
-    assert type(pay) == Payment
-    assert pay.id_pay == 863064926
-    assert pay.state_pay == "EXECUTED"
-    assert pay.date_pay is None
-    assert pay.operation_amount_pay == ("41096.24", "USD")
-    assert pay.description_pay == "Открытие вклада"
-    assert pay.to_pay == ("Счет", "90424923579946435907")
 
 
 def test_create_payment_lack_id():
@@ -363,6 +356,30 @@ def test_create_payment_lack_state():
     assert pay.id_pay == 863064926
     assert pay.state_pay is None
     assert pay.date_pay == datetime(2019, 12, 8, 22, 46, 21, 935582)
+    assert pay.operation_amount_pay == ("41096.24", "USD")
+    assert pay.description_pay == "Открытие вклада"
+    assert pay.to_pay == ("Счет", "90424923579946435907")
+
+
+def test_create_payment_lack_date():
+    incorrect_dict = {
+        "id": 863064926,
+        "state": "EXECUTED",
+        "operationAmount": {
+            "amount": "41096.24",
+            "currency": {
+                "name": "USD",
+                "code": "USD"
+            }
+        },
+        "description": "Открытие вклада",
+        "to": "Счет 90424923579946435907"
+    }
+    pay = u.create_payment(incorrect_dict)
+    assert type(pay) == Payment
+    assert pay.id_pay == 863064926
+    assert pay.state_pay == "EXECUTED"
+    assert pay.date_pay is None
     assert pay.operation_amount_pay == ("41096.24", "USD")
     assert pay.description_pay == "Открытие вклада"
     assert pay.to_pay == ("Счет", "90424923579946435907")

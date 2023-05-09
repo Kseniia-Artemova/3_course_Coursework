@@ -286,4 +286,3 @@ def test_to_pay_incorrect(pay):
 
     pay.to_pay = "Счет 9758489873566367"
     assert pay.to_pay is None
-

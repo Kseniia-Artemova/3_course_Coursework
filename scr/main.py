@@ -1,4 +1,4 @@
-import utils
+import scr.utils as utils
 
 PATH = "sources/operations.json"    # путь к файлу с операциями от корневой папки проекта
 COUNT_TRANSFERS = 5

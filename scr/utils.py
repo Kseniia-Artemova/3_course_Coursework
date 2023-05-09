@@ -1,5 +1,5 @@
 import json
-from payment import Payment
+from scr.payment import Payment
 from datetime import datetime
 from typing import Iterator
 import os
@@ -35,7 +35,7 @@ def get_payments(path: str, parameters: set) -> Iterator[dict]:
         payments = json.load(json_file)
 
     successful_payments = [pay for pay in payments if check_payment(pay, parameters)]
-    successful_payments.sort(reverse=True, key=sort_by_date)
+    successful_payments.sort(reverse=True, key=reformat_date)
 
     latest_payments = iter(successful_payments)
 
@@ -87,7 +87,7 @@ def check_date(date: str) -> bool:
     return True
 
 
-def sort_by_date(pay: dict) -> datetime:
+def reformat_date(pay: dict) -> datetime:
     """
     Функция для корректной сортировки значений по дате.
     Приводит строку к формату datetime, если строка соответствует
@@ -125,11 +125,11 @@ def show_payment(pay: Payment) -> None:
     """
     date = pay.date_pay
     date_format = date.strftime("%d.%m.%Y")
+    red_date, white_date = date_format.rsplit('.', 1)
     description = pay.description_pay
     pay_from = pay.from_pay
     pay_to = pay.to_pay
     operation_amount = pay.operation_amount_pay
-    red_date, white_date = date_format.rsplit('.', 1)
 
     print(f"\033[31m{red_date}\033[0m.{white_date} {description}")
     if pay_from:
