@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "3coursework"
+name = "Coursework"
 version = "0.1.0"
 description = ""
 authors = ["Ksu <kseniyaartemova@yandex.ru>"]
@@ -17,4 +17,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start-program = "3coursework.scr.main:main"
+start-program = "scr.main:main"
