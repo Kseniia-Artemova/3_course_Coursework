@@ -3,7 +3,7 @@ Coursework of 3 course. Code for the "Account Transactions" widget
 
 The information about payments reads from JSON-file "operations.json"
 in folder "sources". On this information's base creates objects of class Payment.
-The nformations about 5 the latest payments displayed on the screen.
+The informations about 5 the latest successful payments displayed on the screen.
 Please, enjoy!
 
 For setup and operation:
