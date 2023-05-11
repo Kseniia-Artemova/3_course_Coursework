@@ -1,5 +1,5 @@
 import pytest
-from class_payment.payment import Payment
+from classes.payment import Payment
 from datetime import datetime
 
 
@@ -14,8 +14,14 @@ def test___str__(pay):
 
 
 def test___repr__(pay):
-    assert repr(pay) == 'Payment(id_pay=None,state_pay="None",date_pay="None",operation_amount_pay=None,' \
-                  'description_pay="None",from_pay="None",to_pay="None")'
+    assert repr(pay) == ('Payment('
+                         '_Payment__id_pay=None, '
+                         '_Payment__state_pay=None, '
+                         '_Payment__date_pay=None, '
+                         '_Payment__operation_amount_pay=None, '
+                         '_Payment__description_pay=None, '
+                         '_Payment__from_pay=None, '
+                         '_Payment__to_pay=None)')
 
 
 def test_id_pay_correct(pay):
@@ -97,29 +103,29 @@ def test_date_pay_incorrect(pay):
 
 def test_operation_amount_pay_correct(pay):
     pay.operation_amount_pay = {
-      "amount": "77751.04",
-      "currency": {
-        "name": "руб.",
-        "code": "RUB"
-      }
+        "amount": "77751.04",
+        "currency": {
+            "name": "руб.",
+            "code": "RUB"
+        }
     }
     assert pay.operation_amount_pay == ("77751.04", "руб.")
 
     pay.operation_amount_pay = {
-      "amount": "77751",
-      "currency": {
-        "name": "руб.",
-        "code": "RUB"
-      }
+        "amount": "77751",
+        "currency": {
+            "name": "руб.",
+            "code": "RUB"
+        }
     }
     assert pay.operation_amount_pay == ("77751.00", "руб.")
 
     pay.operation_amount_pay = {
-      "amount": 77751,
-      "currency": {
-        "name": "руб.",
-        "code": "RUB"
-      }
+        "amount": 77751,
+        "currency": {
+            "name": "руб.",
+            "code": "RUB"
+        }
     }
     assert pay.operation_amount_pay == ("77751.00", "руб.")
 
@@ -132,11 +138,11 @@ def test_operation_amount_pay_incorrect(pay):
     assert pay.operation_amount_pay is None
 
     pay.operation_amount_pay = {
-      "amount": "77751.04",
-      "currency": {
-        "name": 1,
-        "code": "RUB"
-      }
+        "amount": "77751.04",
+        "currency": {
+            "name": 1,
+            "code": "RUB"
+        }
     }
     assert pay.operation_amount_pay is None
 
