@@ -51,7 +51,7 @@ def check_payment(pay: dict) -> bool:
     Проверки:
     был ли платёж успешным ("state": "executed");
     содержит ли информация о платеже все необходимые характеристики;
-    является ли дата платежа корректной
+    является ли дата платежа корректной и соответствующей принятой форме записи
 
     :param pay: словарь, содержащий информацию о платеже
     """
@@ -64,19 +64,9 @@ def check_payment(pay: dict) -> bool:
         return False
     elif not all(pay.values()):
         return False
-    elif not check_date(pay.get("date")):
-        return False
-
-    return True
-
-
-def check_date(date: str) -> bool:
-    """
-    Проверяет корректность формата даты и
-    её соответствие принятой форме записи
-    """
 
     try:
+        date = pay.get("date")
         datetime.strptime(date, FORMAT_DATE)
     except ValueError:
         return False
