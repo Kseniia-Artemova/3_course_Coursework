@@ -199,22 +199,24 @@ def test_check_payment_incorrect():
     assert u.check_payment(incorrect_dict) is False
 
 
-def test_check_date_correct():
-    assert u.check_date("2018-10-14T08:21:33.419441") is True
+def test_check_payment_incorrect_date(correct_dict):
+    correct_dict["date"] = "2018-10-1408:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
+    correct_dict["date"] = "2018-10-14T28:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-def test_check_date_incorrect():
-    assert u.check_date("2018-10-1408:21:33.419441") is False
+    correct_dict["date"] = "2018-10-14"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-10-14T28:21:33.419441") is False
+    correct_dict["date"] = "2018-09-31T08:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-10-14") is False
+    correct_dict["date"] = "2013-02-29T08:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-09-31T08:21:33.419441") is False
-
-    assert u.check_date("2013-02-29T08:21:33.419441") is False
-
-    assert u.check_date(2013) is False
+    correct_dict["date"] = 2013
+    assert u.check_payment(correct_dict) is False
 
 
 def test_reformat_date_correct(correct_dict):

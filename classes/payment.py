@@ -4,6 +4,7 @@ from typing import Optional
 from scr.constants import FORMAT_DATE
 from scr.constants import AMOUNT_DIGITS
 
+
 @dataclass
 class Payment:
     """Информация о платеже"""
@@ -60,11 +61,13 @@ class Payment:
         Проверка: является ли дата корректной
         """
         try:
-            self.__date_pay = datetime.strptime(date, FORMAT_DATE)
+            datetime.strptime(date, FORMAT_DATE)
         except ValueError:
             self.__date_pay = None
         except TypeError:
             self.__date_pay = None
+        else:
+            self.__date_pay = datetime.strptime(date, FORMAT_DATE)
 
     @property
     def operation_amount_pay(self) -> tuple:
