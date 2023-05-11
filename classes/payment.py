@@ -1,32 +1,22 @@
 from datetime import datetime
+from dataclasses import dataclass
+from typing import Optional
+from scr.constants import FORMAT_DATE
+from scr.constants import AMOUNT_DIGITS
 
-
+@dataclass
 class Payment:
     """Информация о платеже"""
-
-    AMOUNT_DIGITS = [16, 20]    # корректное количество цифр в номере банковской карты и счёта
-
-    def __init__(self) -> None:
-        self.__id_pay = None
-        self.__state_pay = None
-        self.__date_pay = None
-        self.__operation_amount_pay = None
-        self.__description_pay = None
-        self.__from_pay = None
-        self.__to_pay = None
+    __id_pay: Optional[int] = None
+    __state_pay: Optional[str] = None
+    __date_pay: Optional[datetime] = None
+    __operation_amount_pay: Optional[tuple] = None
+    __description_pay: Optional[str] = None
+    __from_pay: Optional[tuple] = None
+    __to_pay: Optional[tuple] = None
 
     def __str__(self) -> str:
         return f"Payment {self.__id_pay}, more detailed information is closed."
-
-    def __repr__(self) -> str:
-        return f"Payment(" \
-            f"id_pay={self.__id_pay}," \
-            f"state_pay=\"{self.__state_pay}\"," \
-            f"date_pay=\"{self.__date_pay}\"," \
-            f"operation_amount_pay={self.__operation_amount_pay}," \
-            f"description_pay=\"{self.__description_pay}\"," \
-            f"from_pay=\"{self.__from_pay}\"," \
-            f"to_pay=\"{self.__to_pay}\")"
 
     @property
     def id_pay(self) -> int:
@@ -69,13 +59,12 @@ class Payment:
 
         Проверка: является ли дата корректной
         """
-        if type(date) is str:
-            for_date = " ".join(date.split("T"))
-
-            try:
-                self.__date_pay = datetime.fromisoformat(for_date)
-            except ValueError:
-                self.__date_pay = None
+        try:
+            self.__date_pay = datetime.strptime(date, FORMAT_DATE)
+        except ValueError:
+            self.__date_pay = None
+        except TypeError:
+            self.__date_pay = None
 
     @property
     def operation_amount_pay(self) -> tuple:
@@ -152,16 +141,17 @@ class Payment:
                 if self.__check_card(card, number):
                     self.__from_pay = (card, number)
 
-    def __check_card(self, card: str, number: str) -> bool:
+    @staticmethod
+    def __check_card(card: str, number: str) -> bool:
         """
         Проверяет, состоит ли номер карты/счёта только из цифр и
         соответствует ли количество цифр в номере обязательному для карты/счёта
         """
         if not number.isdigit():
             return False
-        elif len(number) not in self.AMOUNT_DIGITS:
+        elif len(number) not in AMOUNT_DIGITS.values():
             return False
-        elif card.lower() == "счет" and len(number) != self.AMOUNT_DIGITS[-1]:
+        elif card.lower() == "счет" and len(number) != AMOUNT_DIGITS["account"]:
             return False
 
         return True
