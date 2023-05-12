@@ -11,3 +11,8 @@ For setup and operation:
 2. don't change the location of files and folders
 3. activate virtual environment with command: poetry shell
 4. run file from project's root with command: python programs/main.py
+
+# Пример вывода для одной операции:
+14.10.2018 Перевод организации
+Visa Platinum 7000 79** **** 6361 -> Счет **9638
+82771.72 руб.
