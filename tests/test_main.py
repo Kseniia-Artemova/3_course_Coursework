@@ -13,5 +13,5 @@ def test_main_incorrect_path():
 
 
 def test_main_break():
-    main.PATH = "sources/reduced_for_test.json"
+    main.PATH = "tests/sources/reduced_for_test.json"
     assert main.main() is None

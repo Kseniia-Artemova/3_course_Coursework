@@ -109,7 +109,7 @@ def test_get_payments_incorrect():
     with pytest.raises(FileNotFoundError):
         u.get_payments(path)
 
-    path = u.get_path_to_file("empty_for_test.json", "sources")
+    path = u.get_path_to_file("empty_for_test.json", "tests", "sources")
     with pytest.raises(json.decoder.JSONDecodeError):
         u.get_payments(path)
 
