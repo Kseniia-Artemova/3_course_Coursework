@@ -4,8 +4,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import scr.utils as utils
-from scr.constants import PATH
-from scr.constants import COUNT_TRANSFERS
+from constants.constants import PATH
+from constants.constants import COUNT_TRANSFERS
 
 
 def main() -> None:

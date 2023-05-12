@@ -1,8 +1,8 @@
 from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional
-from scr.constants import FORMAT_DATE
-from scr.constants import AMOUNT_DIGITS
+from constants.constants import FORMAT_DATE
+from constants.constants import AMOUNT_DIGITS
 
 
 @dataclass

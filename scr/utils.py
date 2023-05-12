@@ -3,9 +3,9 @@ from classes.payment import Payment
 from datetime import datetime
 from typing import Iterator
 import os
-from scr.constants import FORMAT_DATE
-from scr.constants import OBLIGATION_PARAMETERS_PAY
-from scr.constants import AMOUNT_DIGITS
+from constants.constants import FORMAT_DATE
+from constants.constants import OBLIGATION_PARAMETERS_PAY
+from constants.constants import AMOUNT_DIGITS
 
 
 def get_path_to_file(name_file: str, *dirs: str) -> str:
