@@ -1,8 +1,11 @@
 import json
-from class_payment.payment import Payment
+from classes.payment import Payment
 from datetime import datetime
 from typing import Iterator
 import os
+from constants.constants import FORMAT_DATE
+from constants.constants import OBLIGATION_PARAMETERS_PAY
+from constants.constants import AMOUNT_DIGITS
 
 
 def get_path_to_file(name_file: str, *dirs: str) -> str:
@@ -20,21 +23,20 @@ def get_path_to_file(name_file: str, *dirs: str) -> str:
     return path_to_file
 
 
-def get_payments(path: str, parameters: set) -> Iterator[dict]:
+def get_payments(path: str) -> Iterator[dict]:
     """
     Функция фильтрует и сортирует по дате в обратном порядке
     релевантные для нас значения из списка словарей с информацией
     о платежах.
 
     :param path: путь к JSON-файлу, содержащему список словарей
-    :param parameters: обязательные характеристики платежа
 
     :return: итератор на основе отсортированного списка словарей платежа
     """
-    with open(path, "rt", encoding="utf-8") as json_file:
+    with open(path, "r", encoding="utf-8") as json_file:
         payments = json.load(json_file)
 
-    successful_payments = [pay for pay in payments if check_payment(pay, parameters)]
+    successful_payments = [pay for pay in payments if check_payment(pay)]
     successful_payments.sort(reverse=True, key=reformat_date)
 
     latest_payments = iter(successful_payments)
@@ -42,46 +44,33 @@ def get_payments(path: str, parameters: set) -> Iterator[dict]:
     return latest_payments
 
 
-def check_payment(pay: dict, parameters: set) -> bool:
+def check_payment(pay: dict) -> bool:
     """
     Функция проверяет, соответствует ли платёж требованиям.
 
     Проверки:
     был ли платёж успешным ("state": "executed");
     содержит ли информация о платеже все необходимые характеристики;
-    является ли дата платежа корректной
+    является ли дата платежа корректной и соответствующей принятой форме записи
 
     :param pay: словарь, содержащий информацию о платеже
-    :param parameters: обязательные характеристики платежа
     """
     state = pay.get("state")
-    if not state:
+    if type(state) is not str:
         return False
     if state.lower() != "executed":
         return False
-    elif not parameters.issubset(set(pay.keys())):
+    elif not OBLIGATION_PARAMETERS_PAY.issubset(set(pay.keys())):
         return False
     elif not all(pay.values()):
         return False
-    elif not check_date(pay.get("date")):
-        return False
-
-    return True
-
-
-def check_date(date: str) -> bool:
-    """
-    Проверяет корректность формата даты и
-    её соответствие принятой форме записи
-    """
-    if type(date) is not str:
-        return False
-    if len(date.split("T")) != 2:
-        return False
 
     try:
-        datetime.fromisoformat(date.replace("T", " "))
+        date = pay.get("date")
+        datetime.strptime(date, FORMAT_DATE)
     except ValueError:
+        return False
+    except TypeError:
         return False
 
     return True
@@ -96,8 +85,8 @@ def reformat_date(pay: dict) -> datetime:
     Обязательно должна идти после фильтрации значений
     на соответствие требуемому формату
     """
-    date_pay = pay.get("date").replace("T", " ")
-    date = datetime.fromisoformat(date_pay)
+    date_pay = pay.get("date")
+    date = datetime.strptime(date_pay, FORMAT_DATE)
 
     return date
 
@@ -123,7 +112,7 @@ def show_payment(pay: Payment) -> None:
     """
     Выводит информацию о платеже на экран в требуемом виде
     """
-    date = pay.date_pay
+    date = pay.date_pay.date()
     date_format = date.strftime("%d.%m.%Y")
     red_date, white_date = date_format.rsplit('.', 1)
     description = pay.description_pay
@@ -144,10 +133,8 @@ def hide(number: str) -> str:
     """
     Скрывает определённую часть номера карты или счёта символом "*"
     """
-    card_digits = 16    # корректное число цифр номера карты
-    bank_account_digits = 20    # корректное число цифр номера счёта
     if type(number) is str:
-        if len(number) == card_digits:
+        if len(number) == AMOUNT_DIGITS["card"]:
             hide_start = 6  # символ, с которого начинается сокрытие участка номера
             hide_end = 12   # символ, с которого участок номера снова открыт
             hidden_simbols = hide_end - hide_start
@@ -156,5 +143,5 @@ def hide(number: str) -> str:
 
             return " ".join(number_sep)
 
-        elif len(number) == bank_account_digits:
+        elif len(number) == AMOUNT_DIGITS["account"]:
             return number.replace(number[:-4], "**")

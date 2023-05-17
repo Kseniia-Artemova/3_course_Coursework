@@ -1,12 +1,9 @@
+import os.path
 import scr.utils as u
 import pytest
 from datetime import datetime
-from class_payment.payment import Payment
-
-
-@pytest.fixture
-def parameters():
-    return {"id", "date", "state", "operationAmount", "description", "to"}
+from classes.payment import Payment
+import json
 
 
 @pytest.fixture
@@ -75,8 +72,7 @@ def data_list():
 
 
 def test_get_path_to_file_correct():
-    assert u.get_path_to_file("operations.json", "sources") == "/home/ksu/PycharmProjects/3_course_Coursework/sources" \
-                                                               "/operations.json"
+    assert os.path.exists(u.get_path_to_file("operations.json", "sources")) is True
 
 
 def test_get_path_to_file_incorrect():
@@ -86,10 +82,12 @@ def test_get_path_to_file_incorrect():
     with pytest.raises(TypeError):
         u.get_path_to_file(True, None)
 
+    assert os.path.exists(u.get_path_to_file("sources", "operations.json")) is False
 
-def test_get_payments_correct(parameters):
-    path = "/home/ksu/PycharmProjects/3_course_Coursework/sources/operations.json"
-    payments = u.get_payments(path, parameters)
+
+def test_get_payments_correct():
+    path = u.get_path_to_file("operations.json", "sources")
+    payments = u.get_payments(path)
     assert next(payments) == {
         "id": 863064926,
         "state": "EXECUTED",
@@ -106,21 +104,21 @@ def test_get_payments_correct(parameters):
     }
 
 
-def test_get_payments_incorrect(parameters):
-    path = "/home/ksu/PycharmProjects/3_course_Coursework/operations.json"
+def test_get_payments_incorrect():
+    path = "3_course_Coursework/operations.json"
     with pytest.raises(FileNotFoundError):
-        u.get_payments(path, parameters)
+        u.get_payments(path)
 
-    path = "ksu/sources/operations.json"
-    with pytest.raises(FileNotFoundError):
-        u.get_payments(path, parameters)
-
-
-def test_check_payment_correct(correct_dict, parameters):
-    assert u.check_payment(correct_dict, parameters) is True
+    path = u.get_path_to_file("empty_for_test.json", "tests", "sources")
+    with pytest.raises(json.decoder.JSONDecodeError):
+        u.get_payments(path)
 
 
-def test_check_payment_incorrect(parameters):
+def test_check_payment_correct(correct_dict):
+    assert u.check_payment(correct_dict) is True
+
+
+def test_check_payment_incorrect():
     incorrect_dict = {
         "id": 863064926,
         "state": "",
@@ -135,7 +133,7 @@ def test_check_payment_incorrect(parameters):
         "description": "Открытие вклада",
         "to": "Счет 90424923579946435907"
     }
-    assert u.check_payment(incorrect_dict, parameters) is False
+    assert u.check_payment(incorrect_dict) is False
 
     incorrect_dict = {
         "id": 863064926,
@@ -151,7 +149,7 @@ def test_check_payment_incorrect(parameters):
         "description": "Открытие вклада",
         "to": "Счет 90424923579946435907"
     }
-    assert u.check_payment(incorrect_dict, parameters) is False
+    assert u.check_payment(incorrect_dict) is False
 
     incorrect_dict = {
         "id": 863064926,
@@ -166,7 +164,7 @@ def test_check_payment_incorrect(parameters):
         },
         "to": "Счет 90424923579946435907"
     }
-    assert u.check_payment(incorrect_dict, parameters) is False
+    assert u.check_payment(incorrect_dict) is False
 
     incorrect_dict = {
         "id": 863064926,
@@ -182,7 +180,7 @@ def test_check_payment_incorrect(parameters):
         "description": "Открытие вклада",
         "to": "Счет 90424923579946435907"
     }
-    assert u.check_payment(incorrect_dict, parameters) is False
+    assert u.check_payment(incorrect_dict) is False
 
     incorrect_dict = {
         "id": 863064926,
@@ -198,25 +196,27 @@ def test_check_payment_incorrect(parameters):
         "description": None,
         "to": "Счет 90424923579946435907"
     }
-    assert u.check_payment(incorrect_dict, parameters) is False
+    assert u.check_payment(incorrect_dict) is False
 
 
-def test_check_date_correct():
-    assert u.check_date("2018-10-14T08:21:33.419441") is True
+def test_check_payment_incorrect_date(correct_dict):
+    correct_dict["date"] = "2018-10-1408:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
+    correct_dict["date"] = "2018-10-14T28:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-def test_check_date_incorrect():
-    assert u.check_date("2018-10-1408:21:33.419441") is False
+    correct_dict["date"] = "2018-10-14"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-10-14T28:21:33.419441") is False
+    correct_dict["date"] = "2018-09-31T08:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-10-14") is False
+    correct_dict["date"] = "2013-02-29T08:21:33.419441"
+    assert u.check_payment(correct_dict) is False
 
-    assert u.check_date("2018-09-31T08:21:33.419441") is False
-
-    assert u.check_date("2013-02-29T08:21:33.419441") is False
-
-    assert u.check_date(2013) is False
+    correct_dict["date"] = 2013
+    assert u.check_payment(correct_dict) is False
 
 
 def test_reformat_date_correct(correct_dict):
@@ -289,7 +289,7 @@ def test_reformat_date_incorrect():
         "description": "Открытие вклада",
         "to": "Счет 90424923579946435907"
     }
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         u.reformat_date(incorrect_dict)
 
 

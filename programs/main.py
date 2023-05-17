@@ -4,10 +4,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import scr.utils as utils
-
-PATH = "sources/operations.json"  # путь к файлу с операциями от корневой папки проекта
-COUNT_TRANSFERS = 5
-OBLIGATION_PARAMETERS_PAY = {"id", "date", "state", "operationAmount", "description", "to"}
+from constants.constants import PATH
+from constants.constants import COUNT_TRANSFERS
 
 
 def main() -> None:
@@ -18,7 +16,7 @@ def main() -> None:
     # Получаем итератор на основе списка словарей из JSON-файла
     # с информацией о платежах пользователя, словари отсортированы
     # по дате в обратном порядке
-    payments = utils.get_payments(path_to_file, OBLIGATION_PARAMETERS_PAY)
+    payments = utils.get_payments(path_to_file)
 
     counter = 0
 
